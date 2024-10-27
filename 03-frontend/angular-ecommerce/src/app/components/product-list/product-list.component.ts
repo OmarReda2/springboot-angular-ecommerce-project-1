@@ -13,29 +13,53 @@ import { ActivatedRoute } from '@angular/router';
 export class ProductListComponent {
 
   products: Product[] = [];
-  currentCategoryId: number =1;
+  currentCategoryId: number = 1;
+  searchMode: boolean = false;
 
-  constructor(private productService:ProductService,
-              private route: ActivatedRoute) {
-    
+  constructor(private productService: ProductService,
+    private route: ActivatedRoute) {
+
   }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(() => {
-      this.listProduct();    
+      this.listProduct();
     })
   }
-  
+
 
   listProduct() {
-    // check if "id" param is available
-    const hasCategoryId:boolean = this.route.snapshot.paramMap.has('id');
+    this.searchMode = (this.route.snapshot.paramMap.has('keyword'))
 
-    if(hasCategoryId){
+    if (this.searchMode) {
+      this.handleSearchProducts()
+    } else {
+      this.handleListProduct()
+    }
+  }
+
+  handleSearchProducts() {
+    const theKeyword = this.route.snapshot.paramMap.get('keyword')!;
+
+    // now search for the products using keyword
+    this.productService.searchProducts(theKeyword).subscribe(
+      data => {
+        this.products = data;
+      }
+    )
+  }
+
+
+
+  handleListProduct() {
+    // check if "id" param is available
+    const hasCategoryId: boolean = this.route.snapshot.paramMap.has('id');
+
+    if (hasCategoryId) {
       // get the "id" param string. convert string to a number usingthe "+" symbol
       this.currentCategoryId = +this.route.snapshot.paramMap.get('id')!;
     }
-    else{
+    else {
       // not category id available ... defualt to category id 1
       this.currentCategoryId = 1;
     }
@@ -46,6 +70,13 @@ export class ProductListComponent {
         this.products = data;
       }
     )
+
   }
+
+
+
+
+
+
 
 }

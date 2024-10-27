@@ -1,5 +1,5 @@
 import { ProductCategory } from './../common/product-category';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Product } from '../common/product';
@@ -8,25 +8,23 @@ import { Product } from '../common/product';
   providedIn: 'root'
 })
 export class ProductService {
-  
+
 
   private baseUrl = 'http://localhost:8080/api/products'
   private categoryUrl = 'http://localhost:8080/api/product-category'
 
-  constructor(private httpClient:HttpClient) { }
+  constructor(private httpClient: HttpClient) { }
 
 
 
 
 
   getProductList(theCategoryId: number): Observable<Product[]> {
-    
+
     //need t0 build URL based on category id
     const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`
 
-    return this.httpClient.get<GetProductResponse>(searchUrl).pipe(
-      map(response => response._embedded.products)
-    )
+    return this.getProducts(searchUrl)
   }
 
 
@@ -35,13 +33,41 @@ export class ProductService {
 
 
 
-  getProductCategories():Observable<ProductCategory[]> {
-    
+  getProductCategories(): Observable<ProductCategory[]> {
+
     return this.httpClient.get<GetProductCategoryResponse>(this.categoryUrl).pipe(
       map(response => response._embedded.productCategory)
     );
   }
+
+
+
+
+
+  searchProducts(theKeyWord: string): Observable<Product[]> {
+
+    //need t0 build URL based on category keyword
+    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyWord}`
+
+    return this.getProducts(searchUrl)
+  }
+
+  private getProducts(searchUrl: string): Observable<Product[]> {
+    return this.httpClient.get<GetProductResponse>(searchUrl).pipe(
+      map(response => response._embedded.products)
+    );
+  }
+
+
+
+
+
 }
+
+
+
+
+
 
 
 // .pipe: used to combine 2 functions and the parameter is the function before
