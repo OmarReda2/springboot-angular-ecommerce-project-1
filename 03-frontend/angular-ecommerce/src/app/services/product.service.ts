@@ -17,6 +17,14 @@ export class ProductService {
 
 
 
+  getProduct(theProductId:number):Observable<Product>{
+    return this.httpClient.get<Product>(`${this.baseUrl}/${theProductId}`)
+  }
+
+
+
+
+
 
 
   getProductList(theCategoryId: number): Observable<Product[]> {
