@@ -88,18 +88,25 @@ export class ProductListComponent {
 
 
 
+    // // now get the products for the given category
+    // this.productService.getProductList(this.currentCategoryId).subscribe(
+    //   data => {
+    //     this.products = data;
+    //   }
+    // )
+    
     // now get the products for the given category
-    this.productService.getProductListPaginate(this.thePageNumber - 1
-                                               ,this.thePageSize
-                                               ,this.currentCategoryId)
-                                               .subscribe(
-                                                  data => {
-                                                    this.products = data._embedded.products,
-                                                    this.thePageNumber = data.page.number + 1,
-                                                    this.thePageSize = data.page.size,
-                                                    this.theTotalElements = data.page.totalElemnets
-                                                  }
-                                                )
+      this.productService.getProductListPaginate(this.thePageNumber - 1
+        ,this.thePageSize
+        ,this.currentCategoryId)
+        .subscribe(
+           data => {
+             this.products = data._embedded.products,
+             this.thePageNumber = data.page.number + 1,
+             this.thePageSize = data.page.size,
+             this.theTotalElements = data.page.totalElemnets
+           }
+         )
 
   }
 
