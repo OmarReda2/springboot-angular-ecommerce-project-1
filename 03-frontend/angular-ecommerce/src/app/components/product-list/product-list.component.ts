@@ -94,7 +94,7 @@ export class ProductListComponent {
     //     this.products = data;
     //   }
     // )
-    
+
     // now get the products for the given category
       this.productService.getProductListPaginate(this.thePageNumber - 1
         ,this.thePageSize
