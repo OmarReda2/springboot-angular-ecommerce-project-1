@@ -1,3 +1,4 @@
+import { CartService } from 'src/app/services/cart.service';
 import { ShopFormService } from './../../services/shop-form.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -15,23 +16,40 @@ export class CheckoutComponent implements OnInit {
 
   checkOutFormGroup: FormGroup = new FormGroup({});
 
-  totalPrice:number=0;
-  totalQuantity:number=0;
+  totalPrice: number = 0.00;
+  totalQuantity: number = 0;
 
-  creditCardYear:number[] = [];
-  creditCardMonth:number[] = [];
+  creditCardYear: number[] = [];
+  creditCardMonth: number[] = [];
 
-  countries:Country[]=[];
+  countries: Country[] = [];
 
-  shippingAddressStates:State[]=[];
-  BillingAddressStates:State[]=[];
+  shippingAddressStates: State[] = [];
+  BillingAddressStates: State[] = [];
 
   constructor(private formBuilder: FormBuilder,
-              private shopFormService:ShopFormService) { }
+    private shopFormService: ShopFormService,
+    private cartService: CartService) { }
 
 
-  
+
   ngOnInit(): void {
+
+    //subscribe to the cart totalPrice
+    this.cartService.totalPrice.subscribe(
+      data => {
+        this.totalPrice = data
+        console.log("=========>> " + data);
+
+      }
+    )
+
+    // subscribe to the cart totalQuantity
+    this.cartService.totalQuantity.subscribe(
+      data => this.totalQuantity = data
+    )
+
+
     this.checkOutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: [''],
@@ -50,7 +68,7 @@ export class CheckoutComponent implements OnInit {
         city: [''],
         state: [''],
         country: [''],
-        zipCode: [''] 
+        zipCode: ['']
       }),
       creditCard: this.formBuilder.group({
         cardType: [''],
@@ -66,30 +84,30 @@ export class CheckoutComponent implements OnInit {
 
 
     // populate credit card month
-    const startMonth:number=new Date().getMonth()+1;
+    const startMonth: number = new Date().getMonth() + 1;
     console.log("startMonth: " + startMonth);
 
     this.shopFormService.getCreditCardMonths(startMonth).subscribe(
-      data=>{
+      data => {
         console.log("Retrieved credit card months: " + JSON.stringify(data))
-        this.creditCardMonth=data
+        this.creditCardMonth = data
       }
     )
 
     // populate credit card year
     this.shopFormService.getCreditCardYear().subscribe(
-      data=>{
+      data => {
         console.log("Retrieved credit card year: " + JSON.stringify(data))
-        this.creditCardYear=data;
+        this.creditCardYear = data;
       }
     )
 
 
-    
+
     this.shopFormService.getCountries().subscribe(
-      data =>{
+      data => {
         console.log("Retrieved Countries: " + JSON.stringify(data));
-        this.countries=data 
+        this.countries = data
       }
     )
 
@@ -116,11 +134,11 @@ export class CheckoutComponent implements OnInit {
         this.checkOutFormGroup.controls['billingAddress']
           .setValue(this.checkOutFormGroup.controls['shippingAddress'].value);
 
-          this.BillingAddressStates=this.shippingAddressStates;
+        this.BillingAddressStates = this.shippingAddressStates;
       }
-      else{
+      else {
         this.checkOutFormGroup.controls['billingAddress'].reset();
-        this.BillingAddressStates=[];
+        this.BillingAddressStates = [];
       }
 
     }
@@ -128,52 +146,52 @@ export class CheckoutComponent implements OnInit {
 
 
   handleMonthsAndYears() {
-      const creditCardFormGroup=this.checkOutFormGroup.get('creditCard');
+    const creditCardFormGroup = this.checkOutFormGroup.get('creditCard');
 
-      const currentYear:number = new Date().getFullYear();
-      const selectedYear:number = Number(creditCardFormGroup?.value.expirationYear);
+    const currentYear: number = new Date().getFullYear();
+    const selectedYear: number = Number(creditCardFormGroup?.value.expirationYear);
 
-      let startMonth:number;
+    let startMonth: number;
 
-      //if the current year equals to selected year, then start with the current month
-      if(currentYear===selectedYear){
-        startMonth = new Date().getMonth()+1;
-      }else{
-        startMonth=1;
+    //if the current year equals to selected year, then start with the current month
+    if (currentYear === selectedYear) {
+      startMonth = new Date().getMonth() + 1;
+    } else {
+      startMonth = 1;
+    }
+
+    this.shopFormService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        console.log("Retrieved credit card months: " + JSON.stringify(data))
+        this.creditCardMonth = data
       }
+    )
+  }
 
-      this.shopFormService.getCreditCardMonths(startMonth).subscribe(
-        data=>{
-          console.log("Retrieved credit card months: " + JSON.stringify(data))
-          this.creditCardMonth=data
+
+  getStates(formGroupName: string) {
+
+    const formGroup = this.checkOutFormGroup.get(formGroupName);
+
+    const countryCode = formGroup?.value.country.code;
+    const countryName = formGroup?.value.country.name;
+
+    console.log(`${formGroupName} country code: ${countryCode}`);
+    console.log(`${formGroupName} country name: ${countryName}`);
+
+    this.shopFormService.getStates(countryCode).subscribe(
+      data => {
+        if (formGroupName == "shippingAddress") {
+          this.shippingAddressStates = data;
+        } else {
+          this.BillingAddressStates = data;
         }
-      )
-    }
-  
 
-    getStates(formGroupName:string) {
-        
-      const formGroup = this.checkOutFormGroup.get(formGroupName);
-
-      const countryCode = formGroup?.value.country.code;
-      const countryName = formGroup?.value.country.name;
-
-      console.log(`${formGroupName} country code: ${countryCode}`);
-      console.log(`${formGroupName} country name: ${countryName}`);
-
-      this.shopFormService.getStates(countryCode).subscribe(
-        data => {
-          if(formGroupName=="shippingAddress"){
-            this.shippingAddressStates=data;
-          }else{
-            this.BillingAddressStates=data;
-          }
-
-          formGroup?.get('state')?.setValue(data[0])
-        }
-      )
+        formGroup?.get('state')?.setValue(data[0])
+      }
+    )
 
 
 
-    }
+  }
 }
