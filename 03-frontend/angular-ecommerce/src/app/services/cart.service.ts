@@ -10,15 +10,25 @@ export class CartService {
 
   cartItem: CartItem[] = [];
 
-  // totalPrice: BehaviorSubject<number> = new Subject<number>();
-  // totalQuantity: Subject<number> = new Subject<number>();
+  /*
+  totalPrice: BehaviorSubject<number> = new Subject<number>();
+  totalQuantity: Subject<number> = new Subject<number>();
+  */
+ 
+ 
+ // used BehaviorSubject instead of Subject 
+ // BehaviorSubject cache the last emmitted value
+ // when comp is initialized after value emitted it BehaviorSubject will cach(the last value only) it unlike Subject
+ totalPrice: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+ totalQuantity: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+ 
 
-  // used BehaviorSubject instead of Subject 
-  // BehaviorSubject cache the last emmitted value
-  // when comp is initialized after value emitted it BehaviorSubject will cah it unlike Subject
-  totalPrice: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  totalQuantity: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-
+ 
+ // when comp is initialized after value emitted it ReplySubject will cach(stream of all values emitted) it unlike Subject
+ /*
+ totalPrice: ReplaySubject<number> = new ReplaySubject<number>(0);
+ totalQuantity: ReplaySubject<number> = new ReplaySubject<number>(0);
+ */
   constructor() { }
 
 
