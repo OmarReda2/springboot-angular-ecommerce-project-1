@@ -1,9 +1,10 @@
 import { CartService } from 'src/app/services/cart.service';
 import { ShopFormService } from './../../services/shop-form.service';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Country } from 'src/app/common/country';
 import { State } from 'src/app/common/state';
+import { ShopValidators } from 'src/app/validators/shop-validators';
 
 @Component({
   selector: 'app-checkout',
@@ -52,24 +53,63 @@ export class CheckoutComponent implements OnInit {
 
     this.checkOutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
-        firstName: [''],
-        lastName: [''],
-        email: ['']
+        firstName: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
+        lastName: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
+        email: new FormControl('',
+          [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
       }),
+
       shippingAddress: this.formBuilder.group({
-        street: [''],
-        city: [''],
-        state: [''],
-        country: [''],
-        zipCode: ['']
+        street: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
+        city: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
+        state: new FormControl('', [Validators.required]),
+
+        country:new FormControl('', [Validators.required]),
+
+        zipCode: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
       }),
+
       billingAddress: this.formBuilder.group({
-        street: [''],
-        city: [''],
-        state: [''],
-        country: [''],
-        zipCode: ['']
+        street: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
+        city: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
+
+        state: new FormControl('', [Validators.required]),
+
+        country:new FormControl('', [Validators.required]),
+
+        zipCode: new FormControl('',
+          [Validators.required,
+          Validators.minLength(2),
+          ShopValidators.notOnlyWhiteSpaces]),
       }),
+
       creditCard: this.formBuilder.group({
         cardType: [''],
         nameOnCard: [''],
@@ -110,16 +150,32 @@ export class CheckoutComponent implements OnInit {
         this.countries = data
       }
     )
-
-
-
   }
+
+
+  get firstName() { return this.checkOutFormGroup.get('customer.firstName') }
+  get lastName() { return this.checkOutFormGroup.get('customer.lastName') }
+  get email() { return this.checkOutFormGroup.get('customer.email') }
+  get shippingAddressStreet() { return this.checkOutFormGroup.get('shippingAddress.street') }
+  get shippingAddressCity() { return this.checkOutFormGroup.get('shippingAddress.city') }
+  get shippingAddressState() { return this.checkOutFormGroup.get('shippingAddress.state') }
+  get shippingAddressZipCode() { return this.checkOutFormGroup.get('shippingAddress.zipCode') }
+  get shippingAddressCountry() { return this.checkOutFormGroup.get('shippingAddress.country') }
+  get billingAddressStreet() { return this.checkOutFormGroup.get('billingAddress.street') }
+  get billingAddressCity() { return this.checkOutFormGroup.get('billingAddress.city') }
+  get billingAddressState() { return this.checkOutFormGroup.get('billingAddress.state') }
+  get billingAddressZipCode() { return this.checkOutFormGroup.get('billingAddress.zipCode') }
+  get billingAddressCountry() { return this.checkOutFormGroup.get('billingAddress.country') }
 
 
 
 
   onSubmit() {
     console.log("Handling the submit button");
+    if (this.checkOutFormGroup.invalid) {
+      this.checkOutFormGroup.markAllAsTouched();
+    }
+
     console.log(this.checkOutFormGroup.get('customer')?.value);
     console.log("The email address is " + this.checkOutFormGroup.get('customer')?.value.email);
 
