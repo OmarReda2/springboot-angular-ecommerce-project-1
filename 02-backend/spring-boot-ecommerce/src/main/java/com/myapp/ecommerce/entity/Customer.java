@@ -16,7 +16,7 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Column(name = "firstName")
     private String firstName;
@@ -27,6 +27,8 @@ public class Customer {
     @Column(name = "email")
     private String email;
 
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
     private Set<Order> orders = new HashSet<>();
 
     public void add(Order order){

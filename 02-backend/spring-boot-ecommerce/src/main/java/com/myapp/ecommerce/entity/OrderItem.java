@@ -17,7 +17,7 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -29,7 +29,7 @@ public class OrderItem {
     private int quantity;
 
     @Column(name = "product_id")
-    private long productId;
+    private Long productId;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
