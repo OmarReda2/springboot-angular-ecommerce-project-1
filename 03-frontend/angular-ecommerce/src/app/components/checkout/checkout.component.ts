@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { CartService } from 'src/app/services/cart.service';
 import { ShopFormService } from './../../services/shop-form.service';
 import { Component, OnInit } from '@angular/core';
@@ -5,6 +6,9 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { Country } from 'src/app/common/country';
 import { State } from 'src/app/common/state';
 import { ShopValidators } from 'src/app/validators/shop-validators';
+import { CheckoutService } from 'src/app/services/checkout.service';
+import { Order } from 'src/app/common/order';
+import { OrderItem } from 'src/app/common/order-item';
 
 @Component({
   selector: 'app-checkout',
@@ -30,7 +34,9 @@ export class CheckoutComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder,
     private shopFormService: ShopFormService,
-    private cartService: CartService) { }
+    private cartService: CartService,
+    private checkoutService: CheckoutService,
+    private router: Router) { }
 
 
 
@@ -148,7 +154,7 @@ export class CheckoutComponent implements OnInit {
   }
 
 
-  reviewCartDetails():void {
+  reviewCartDetails(): void {
     this.cartService.totalPrice.subscribe(
       data => {
         this.totalPrice = data;
@@ -179,26 +185,56 @@ export class CheckoutComponent implements OnInit {
   get billingAddressZipCode() { return this.checkOutFormGroup.get('billingAddress.zipCode') }
   get billingAddressCountry() { return this.checkOutFormGroup.get('billingAddress.country') }
 
-  get creditCardType() {return this.checkOutFormGroup.get('creditCard.cardType')}
-  get creditCardNameOnCard() {return this.checkOutFormGroup.get('creditCard.nameOnCard')}
-  get creditCardCardNumber() {return this.checkOutFormGroup.get('creditCard.cardNumber')}
-  get creditCardSecurityCode() {return this.checkOutFormGroup.get('creditCard.securityCode')}
+  get creditCardType() { return this.checkOutFormGroup.get('creditCard.cardType') }
+  get creditCardNameOnCard() { return this.checkOutFormGroup.get('creditCard.nameOnCard') }
+  get creditCardCardNumber() { return this.checkOutFormGroup.get('creditCard.cardNumber') }
+  get creditCardSecurityCode() { return this.checkOutFormGroup.get('creditCard.securityCode') }
 
 
 
 
 
   onSubmit() {
+
     console.log("Handling the submit button");
     if (this.checkOutFormGroup.invalid) {
       this.checkOutFormGroup.markAllAsTouched();
+      return;
     }
 
-    console.log(this.checkOutFormGroup.get('customer')?.value);
-    console.log("The email address is " + this.checkOutFormGroup.get('customer')?.value.email);
 
-    console.log("The shipping address country is " + this.checkOutFormGroup.get('shippingAddress')?.value.country.name);
-    console.log("The shipping address country is " + this.checkOutFormGroup.get('billingAddress')?.value.country.name);
+    // set up order
+    let order = new Order()
+    order.totalPrice = this.totalPrice;
+    order.totalQuantity = this.totalQuantity;
+
+    // get cart items
+    const cartItems = this.cartService.cartItem;
+
+    // create orderItems from cartItems
+/* 
+    // - long way
+    let orderItems : OrderItem[] = [];
+    for(let i = 0; i<cartItems.length; i++){
+        orderItems[i] = new OrderItem(cartItems[i])
+    }
+*/
+    // - short way of doing the same thing
+    let orderItems: OrderItem[] = cartItems.map(tempCartItem => new OrderItem(tempCartItem))
+
+    // set up purchase
+
+    // populate purchase - customer
+
+    // populate purchase - shipping address
+
+    // populate purchase - billing address
+
+    // populate purchase - order and orderItems
+
+    // call REST API via the CheckoutService
+
+
   }
 
 
