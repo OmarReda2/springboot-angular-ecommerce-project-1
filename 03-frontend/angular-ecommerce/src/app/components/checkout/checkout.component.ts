@@ -9,6 +9,8 @@ import { ShopValidators } from 'src/app/validators/shop-validators';
 import { CheckoutService } from 'src/app/services/checkout.service';
 import { Order } from 'src/app/common/order';
 import { OrderItem } from 'src/app/common/order-item';
+import { Purchase } from 'src/app/common/purchase';
+import { Customer } from 'src/app/common/customer';
 
 @Component({
   selector: 'app-checkout',
@@ -223,17 +225,56 @@ export class CheckoutComponent implements OnInit {
     let orderItems: OrderItem[] = cartItems.map(tempCartItem => new OrderItem(tempCartItem))
 
     // set up purchase
+    let purchase=new Purchase()
 
     // populate purchase - customer
+    purchase.customer = this.checkOutFormGroup.controls['customer'].value;
 
     // populate purchase - shipping address
+    purchase.shippingAddress=this.checkOutFormGroup.controls['shippingAddress'].value;
+    const shippingState: State = JSON.parse(JSON.stringify(purchase.shippingAddress?.state))
+    const shippingCountry: Country = JSON.parse(JSON.stringify(purchase.shippingAddress?.country))
+    purchase.shippingAddress!.state = shippingState.name
+    purchase.shippingAddress!.country = shippingCountry.name
 
     // populate purchase - billing address
+    purchase.billingAddress=this.checkOutFormGroup.controls['billingAddress'].value;
+    const billingState: State = JSON.parse(JSON.stringify(purchase.billingAddress?.state))
+    const billingCountry: Country = JSON.parse(JSON.stringify(purchase.billingAddress?.country))
+    purchase.billingAddress!.state = billingState.name
+    purchase.billingAddress!.country = billingCountry.name
 
     // populate purchase - order and orderItems
+    purchase.order = order;
+    purchase.orderItems = orderItems;
 
     // call REST API via the CheckoutService
+    this.checkoutService.placeOrder(purchase).subscribe({
+      next: res => {
+        alert(`Your order has been recieved\nOrder tracking number is ${res.orderTrackingNumber}`)
 
+        // reset cart
+        this.resetCart();
+      },
+      error: err => {
+        alert(`There was an error: ${err.message}`)
+      }
+    })
+
+
+  }
+
+  resetCart() {
+    // reset cart data
+    this.cartService.cartItem = [];
+    this.cartService.totalPrice.next(0);
+    this.cartService.totalQuantity.next(0);
+
+    // reset form
+    this.checkOutFormGroup.reset();
+
+    // navigate back to the products page
+    this.router.navigateByUrl("/products");
 
   }
 
